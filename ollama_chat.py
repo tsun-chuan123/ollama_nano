@@ -1,7 +1,3 @@
-分享
-
-PA
-你說：
 import cv2
 import ollama
 import re
