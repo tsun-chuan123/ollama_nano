@@ -1,0 +1,56 @@
+[
+    {
+        "fruit": "Apple",
+        "nutrition": "Per 100g: 52 calories, 13.8g carbohydrates, 2.4g dietary fiber, 10.4g sugar, 0.3g protein, rich in vitamin C and potassium.",
+        "health_benefits": "Rich in dietary fiber, promotes gut health, enhances immunity with vitamin C, lowers cholesterol, and supports cardiovascular health.",
+        "image_path": "./images/apple_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Banana",
+        "nutrition": "Per 100g: 89 calories, 22.8g carbohydrates, 2.6g dietary fiber, 12.2g sugar, 1.1g protein, rich in potassium and vitamin B6.",
+        "health_benefits": "Potassium helps maintain stable blood pressure, vitamin B6 supports the nervous system, provides quick energy, ideal for post-workout consumption.",
+        "image_path": "./images/banana_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Grape",
+        "nutrition": "Per 100g: 69 calories, 18.1g carbohydrates, 0.9g dietary fiber, 15.5g sugar, 0.7g protein, rich in vitamin C and vitamin K.",
+        "health_benefits": "Rich in polyphenols and antioxidants, supports cardiovascular health, reduces inflammation, and boosts immunity.",
+        "image_path": "./images/grape_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Kiwi",
+        "nutrition": "Per 100g: 61 calories, 14.7g carbohydrates, 3g dietary fiber, 9g sugar, 1.1g protein, rich in vitamin C, vitamin K, and vitamin E.",
+        "health_benefits": "High in vitamin C to boost immunity, antioxidants reduce oxidative stress, dietary fiber promotes digestive health.",
+        "image_path": "./images/kiwi_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Mango",
+        "nutrition": "Per 100g: 60 calories, 15g carbohydrates, 1.6g dietary fiber, 13.7g sugar, 0.8g protein, rich in vitamin C and vitamin A.",
+        "health_benefits": "Antioxidants protect cells, vitamin A maintains vision, boosts immune function, and promotes skin health.",
+        "image_path": "./images/mango_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Orange",
+        "nutrition": "Per 100g: 53 calories, 13.3g carbohydrates, 1.8g dietary fiber, 10.6g sugar, 0.8g protein, rich in vitamin C and potassium.",
+        "health_benefits": "Vitamin C enhances immunity, antioxidants reduce inflammation, and potassium helps maintain blood pressure stability.",
+        "image_path": "./images/orange_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Strawberry",
+        "nutrition": "Per 100g: 32 calories, 7.7g carbohydrates, 2g dietary fiber, 4.9g sugar, 0.7g protein, rich in vitamin C and manganese.",
+        "health_benefits": "Antioxidants protect cardiovascular health, vitamin C enhances immunity, and dietary fiber supports gut health.",
+        "image_path": "./images/strawberry_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Chickoo",
+        "nutrition": "Per 100g: 83 calories, 19.9g carbohydrates, 5.3g dietary fiber, 14.6g sugar, 0.4g protein, rich in vitamin C, vitamin A, calcium, phosphorus, potassium, magnesium, and iron.",
+        "health_benefits": "Aids digestion, boosts immunity, supports bone health, has antioxidant properties, helps replenish body fluids, and increases energy.",
+        "image_path": "./images/chickoo_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Cherry",
+        "nutrition": "Per 100g: 50 calories, 12g carbohydrates, 1.6g dietary fiber, 8g sugar, 1g protein, rich in vitamin C, potassium, anthocyanins, and melatonin.",
+        "health_benefits": "Antioxidant and anti-inflammatory properties, supports cardiovascular health, improves sleep quality, and aids post-workout muscle recovery.",
+        "image_path": "./images/cherry_fruit/image_1.jpg"
+    }
+]

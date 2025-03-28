@@ -1,0 +1,23 @@
+# 忽略 Python 腳本
+identify_fruit.py
+query_fruit_info.py
+fruit_identifier.py
+build_fruit_index.py
+final_fruit_rag.py
+test_llava.py
+speech_chatbot.py
+speech_chatbot1.py
+speech_chatbot2.py
+
+# 忽略 Faiss 索引檔
+fruit_index.faiss
+
+# 忽略 JSON 及文字檔
+retrieved_fruit_info.json
+recognized_fruit.txt
+
+# 忽略 Modelfile
+Modelfile
+
+current_frame.jpg
+voice_command.wav
