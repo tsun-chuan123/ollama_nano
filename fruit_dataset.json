@@ -52,5 +52,11 @@
         "nutrition": "Per 100g: 50 calories, 12g carbohydrates, 1.6g dietary fiber, 8g sugar, 1g protein, rich in vitamin C, potassium, anthocyanins, and melatonin.",
         "health_benefits": "Antioxidant and anti-inflammatory properties, supports cardiovascular health, improves sleep quality, and aids post-workout muscle recovery.",
         "image_path": "./images/cherry_fruit/image_1.jpg"
+    },
+    {
+        "fruit": "Guava",
+        "nutrition": "Per 100g: Approximately 68 calories, 14.3g carbohydrates, 5.4g dietary fiber, 2.6g protein, and rich in vitamin C, vitamin A, and potassium.",
+        "health_benefits": "High vitamin C supports immune function; abundant fiber promotes healthy digestion; antioxidants help reduce oxidative stress and support cardiovascular health."
     }
+    
 ]

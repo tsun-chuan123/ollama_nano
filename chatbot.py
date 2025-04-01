@@ -82,13 +82,11 @@ def shorten_wiki_text(main_text):
        nutrition: <一句關於該水果的營養資訊>
        health: <一句關於該水果的健康益處>
     """
-
-    # 清理參考符號及多餘換行
+    # 清理雜訊
     text_no_refs = re.sub(r"\[\d+\]", "", main_text)
     text_no_refs = re.sub(r"[\?]{2,}", "", text_no_refs)
     text_no_refs = re.sub(r"\n+", " ", text_no_refs)
 
-    # 要求只輸出兩行
     prompt = f"""請閱讀以下水果資訊，並只用兩行輸出：
 nutrition: <水果的營養相關描述>
 health: <水果的健康益處描述>
@@ -101,16 +99,13 @@ health: <水果的健康益處描述>
         messages=[{"role": "user", "content": prompt}]
     )
     two_lines = response["message"]["content"].strip()
+    
+    # 新增：容錯機制（用正規表示法找兩行）
+    nutrition_match = re.search(r"nutrition:\s*(.+)", two_lines, re.IGNORECASE)
+    health_match = re.search(r"health:\s*(.+)", two_lines, re.IGNORECASE)
 
-    # 假設模型的輸出即為:
-    # nutrition: ...
-    # health: ...
-    lines = two_lines.split('\n')
-    if len(lines) < 2:
-        return "nutrition: 無", "health: 無"
-
-    nutrition_line = lines[0].strip()
-    health_line = lines[1].strip()
+    nutrition_line = f"nutrition: {nutrition_match.group(1).strip()}" if nutrition_match else "nutrition: 無"
+    health_line = f"health: {health_match.group(1).strip()}" if health_match else "health: 無"
 
     return nutrition_line, health_line
 
