@@ -15,9 +15,8 @@ import io
 # 參數設定與全域變數
 # -----------------------------
 # 讀取檔案中的 Token
-token_file = open("wit_token.txt", "r")
-WIT_ACCESS_TOKEN = token_file.read().strip()
-token_file.close()
+with open("wit_token.txt", "r") as token_file:
+    WIT_ACCESS_TOKEN = token_file.read().strip()
 
 # 使用 Token 初始化 Wit
 client = Wit(WIT_ACCESS_TOKEN)
@@ -70,23 +69,20 @@ def recognize_speech_with_wit(audio_file, access_token=WIT_ACCESS_TOKEN):
         response = client.speech(f, {'Content-Type': 'audio/wav'})
     return response.get('text', None)
 
-# -----------------------------
-# 幫 Wikipedia 回傳的內容，產出僅有兩行的精簡描述
-# 第一行: nutrition: ...
-# 第二行: health: ...
-# -----------------------------
-def shorten_wiki_text(main_text):
+
+# -----------------------------------------------------
+# [核心改動區]：先定義一個單次呼叫 LLM 的函式
+# -----------------------------------------------------
+def _shorten_wiki_text_one_call(main_text):
     """
-    1. 移除 [1], [2] 這類參考符號 & 多餘問號或空行
-    2. 透過 ollama 請求僅輸出兩行:
-       nutrition: <一句關於該水果的營養資訊>
-       health: <一句關於該水果的健康益處>
+    單次呼叫 ollama 進行摘要，回傳 (nutrition_line, health_line)
     """
-    # 清理雜訊
+    # 1. 移除 [1], [2] 等參考符號與多餘問號、換行
     text_no_refs = re.sub(r"\[\d+\]", "", main_text)
     text_no_refs = re.sub(r"[\?]{2,}", "", text_no_refs)
     text_no_refs = re.sub(r"\n+", " ", text_no_refs)
 
+    # 2. Prompt：要求只輸出 nutrition: 與 health:
     prompt = f"""請閱讀以下水果資訊，並只用兩行輸出：
 nutrition: <水果的營養相關描述>
 health: <水果的健康益處描述>
@@ -100,7 +96,10 @@ health: <水果的健康益處描述>
     )
     two_lines = response["message"]["content"].strip()
     
-    # 新增：容錯機制（用正規表示法找兩行）
+    # Debug：檢查 LLM 實際回傳內容
+    print("🔍 LLM 回傳內容(單次呼叫)：", repr(two_lines))
+
+    # 3. 透過正規表示式擷取 (nutrition: ... ) 及 (health: ...)
     nutrition_match = re.search(r"nutrition:\s*(.+)", two_lines, re.IGNORECASE)
     health_match = re.search(r"health:\s*(.+)", two_lines, re.IGNORECASE)
 
@@ -108,6 +107,28 @@ health: <水果的健康益處描述>
     health_line = f"health: {health_match.group(1).strip()}" if health_match else "health: 無"
 
     return nutrition_line, health_line
+
+
+def shorten_wiki_text(main_text, max_retry=3):
+    """
+    改為具備 Retry 機制：
+    - 如果第一次 LLM 回傳的 health_line 是 ??? 或 health: 無
+      (或模型沒回 health:)，就再呼叫一次 (最多重試 max_retry 次)
+    """
+    for attempt in range(max_retry):
+        nutrition_line, health_line = _shorten_wiki_text_one_call(main_text)
+
+        # 如果 health_line 裡沒有 ???，且不等於"health: 無"(代表真的有內容)
+        # 就算通過 => 回傳
+        if "???" not in health_line and health_line.lower().strip() != "health: 無":
+            return nutrition_line, health_line
+        
+        print(f"⚠️ 第 {attempt+1} 次回傳健康資訊不完整，重試中...")
+
+    # 多次嘗試後仍失敗 -> fallback
+    print("⚠️ 多次嘗試後仍無法取得有效 health 資訊，改為無")
+    return "nutrition: 無", "health: 無"
+
 
 # -----------------------------
 # 辨識水果 (OpenCV frame or image path)
@@ -165,7 +186,7 @@ def fetch_fruit_info_online(fruit_name):
         # 只抓 2 句 summary
         main_summary = wikipedia.summary(query_name, sentences=2)
 
-        # 從完整頁面擷取 nutrition 區塊（若有）
+        # 從完整頁面擷取 Nutrition 區塊（若有）
         page = wikipedia.page(query_name)
         content = page.content
         idx = content.find("Nutrition")
@@ -175,8 +196,8 @@ def fetch_fruit_info_online(fruit_name):
 
         combined_text = main_summary + "\n" + nutrition_excerpt
 
-        # 讓模型只輸出兩行
-        nutrition_line, health_line = shorten_wiki_text(combined_text)
+        # 讓模型只輸出兩行 (帶有 Retry)
+        nutrition_line, health_line = shorten_wiki_text(combined_text, max_retry=3)
 
         # 回傳兩行分別給 dictionary
         return {
@@ -222,9 +243,8 @@ def get_fruit_info(fruit_name):
 def query_ai_for_fruit(fruit_name, fruit_info, query_type="general", question=None):
     """
     - query_type 可為 'calories', 'vitamins', 'health_benefits', 或 'general'
-    - 若是 general，則將所有資訊帶入 prompt，讓模型自由回答
+    - 若為 general，則將所有資訊帶入 prompt，讓模型自由回答
     """
-    # 以下僅示範，可依實際需求修改解析邏輯
     if query_type == "calories":
         return "解析卡路里資訊 (示範)"
     elif query_type == "vitamins":
@@ -255,10 +275,15 @@ def display_fruit_info(fruit_info):
     if not fruit_info:
         print("⚠️ 無水果資訊。")
         return
+    # 若 health 欄位含有 "???" 或空，則替換為預設訊息
+    health = fruit_info.get("health_benefits", "health: Not available")
+    if "???" in health or not health.strip():
+        health = "health: 無"
+
     print(f"\n🍎 Fruit Info:")
     print(f"Name: {fruit_info.get('fruit', 'Unknown')}")
     print(f"{fruit_info.get('nutrition', 'nutrition: Not available')}")
-    print(f"{fruit_info.get('health_benefits', 'health: Not available')}")
+    print(f"{health}")
 
 # -----------------------------
 # OpenCV 文字換行輔助
@@ -411,8 +436,7 @@ def run_webcam_mode():
                 else:
                     nutrition_on_screen = "nutrition: 無"
                     health_benefits_on_screen = "health: 無"
-            # 重置顯示位置
-            ny = y_pos
+            ny = y_pos  # 重置顯示位置
         elif key == ord('s'):
             audio_file = record_audio_pyaudio(duration=3)
             recognized = recognize_speech_with_wit(audio_file, access_token)
@@ -434,7 +458,6 @@ def run_webcam_mode():
     cv2.destroyAllWindows()
 
 def main():
-    # 只啟動 Webcam 模式
     run_webcam_mode()
 
 if __name__ == "__main__":
